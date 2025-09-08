@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SafeCart</title>
+  <meta charset="UTF-8">
+  <title>Boycott Checker</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    #searchInput {
+      width: 400px;
+      padding: 15px;
+      font-size: 24px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    #checkBtn {
+      padding: 12px 24px;
+      font-size: 20px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #checkBtn:hover {
+      background-color: #0056b3;
+    }
+
+    #resultMessage {
+      margin-top: 20px;
+      font-size: 22px;
+    }
+
+    #suggestions {
+      position: absolute;
+      top: calc(50% + 60px);
+      width: 400px;
+      background: white;
+      border: 1px solid #ccc;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      border-radius: 6px;
+    }
+
+    #suggestions div {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #suggestions div:hover {
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <input type="search" id="searchInput" placeholder="ابحث عن منتج أو شركة" autocomplete="off">
+  <div id="suggestions"></div>
+  <button id="checkBtn">تحقق من العنصر</button>
+  <p id="resultMessage"></p>
+
+  <script>
+    const itemList = ["Starbucks", "McDonald's", "KFC", "Burger King", "Subway", "Hardee's", "Pizza Hut", "Domino's", "Papa John's", "Herfy","Al Baik", "Shawarmer", "Coca-Cola", "Pepsi", "7UP", "Mountain Dew", "Fanta", "Sprite", "Rani", "Barbican","Nestlé", "Nescafé", "Lipton", "Tropicana", "Almarai", "Nada", "Saudia", "Lusine", "Americana", "Sunbulah","Lays", "Doritos", "Pringles", "Tiffany", "Oreo", "KitKat", "Galaxy", "Snickers", "Twix", "Mars","Cadbury", "Toblerone", "Ferrero Rocher", "Kinder", "Nutella", "Baskin Robbins", "Häagen-Dazs", "Magnum", "Igloo", "Nestlé Ice Cream","Pampers", "Huggies", "Always", "Kotex", "Dettol", "Lifebuoy", "Dove", "Lux", "Head & Shoulders", "Pantene","Sunsilk", "Clear", "Tresemme", "Nivea", "Vaseline", "Johnson's", "Jergens", "Olay", "L'Oréal", "Maybelline","MAC", "Sephora", "The Body Shop", "Bath & Body Works", "Victoria's Secret", "Zara", "H&M", "Bershka", "Stradivarius", "Pull & Bear","Nike", "Adidas", "Puma", "Reebok", "Under Armour", "Skechers", "Crocs", "New Balance", "Fila", "Converse","Apple", "Samsung", "Huawei", "Xiaomi", "Oppo", "Vivo", "Sony", "LG", "Nokia", "Motorola","HP", "Dell", "Lenovo", "Asus", "Acer", "MSI", "Razer", "Microsoft", "Google", "Amazon","Facebook", "Instagram", "WhatsApp", "TikTok", "Snapchat", "Twitter", "YouTube", "Netflix", "Spotify", "Shahid","STC", "Mobily", "Zain", "Virgin Mobile", "Lebara", "Jawwy", "Noon", "Amazon.sa", "Namshi", "Shein","IKEA", "Home Centre", "Carrefour", "Panda", "Lulu", "Danube", "BinDawood", "Tamimi", "Othaim", "Nesto","Extra", "Jarir", "Xcite", "Electro", "Best", "Redsea", "Abdulkader", "Al-Falak", "Al-Haddad", "Al-Jazirah","Toyota", "Hyundai", "Kia", "Nissan", "Chevrolet", "Ford", "Honda", "Mazda", "BMW", "Mercedes-Benz","Audi", "Volkswagen", "Jeep", "GMC", "Tesla", "BYD", "Changan", "Geely", "MG", "Great Wall","Aramco", "SABIC", "STC", "Al Rajhi Bank", "Riyad Bank", "SABB", "Banque Saudi Fransi", "Mobily", "Saudi Electricity", "Tasnee","Almarai", "Savola", "Al Othaim", "Al Baik", "Herfy", "BinDawood", "Tamimi Markets", "Al Nahdi", "Al-Dawaa", "Careem","Uber", "Talabat", "Jahez", "HungerStation", "Mrsool", "ToYou", "Sary", "Zid", "Cartlow", "OpenSooq","Haraj", "Expatriates", "Bayut", "Property Finder", "Wasalt", "Sakani", "Absher", "Tawakkalna", "Sehhaty", "Nafath","Qiwa", "Mudad", "Elm", "Saudi Post", "ZATCA", "Saudi Airlines", "Flynas", "Flyadeal", "Saudia Cargo", "Almosafer","Booking.com", "Agoda", "Trip.com", "Expedia", "Airbnb", "TikTok Shop", "Temu", "AliExpress", "Alibaba", "Daraz","eXtra", "Jarir Bookstore", "Virgin Megastore", "PlayStation", "Xbox", "Nintendo", "Steam", "Epic Games", "Roblox", "Minecraft","Fortnite", "PUBG", "Call of Duty", "Valorant", "League of Legends", "FIFA", "EA Sports", "Ubisoft", "Rockstar Games", "Activision","Sony Music", "Universal Music", "Rotana", "MBC", "Al Arabiya", "Al Jazeera", "CNN", "BBC", "Sky News", "Netflix MENA","Shahid VIP", "OSN", "StarzPlay", "Anghami", "Spotify MENA", "YouTube Premium", "TikTok MENA", "Snapchat MENA", "Instagram MENA", "Facebook MENA","Almarai Milk", "Nada Juice", "Saudia Ice Cream", "Lusine Bread", "Sunbulah Frozen", "Americana Chicken", "Tiffany Biscuits", "Oreo Cookies", "Galaxy Chocolate", "KitKat Bar","Snickers Bar", "Twix Bar", "Mars Bar", "Cadbury Dairy Milk", "Toblerone", "Ferrero Rocher", "Kinder Bueno", "Nutella Spread", "Baskin Robbins Ice Cream", "Magnum Ice Cream","Igloo Ice Cream", "Nestlé Ice Cream", "Pampers Diapers", "Huggies Diapers", "Always Pads", "Kotex Pads", "Dettol Soap", "Lifebuoy Soap", "Dove Shampoo", "Lux Soap","Head & Shoulders Shampoo", "Pantene Shampoo", "Sunsilk Shampoo", "Clear Shampoo", "Tresemme Shampoo", "Nivea Cream", "Vaseline Lotion", "Johnson's Baby", "Jergens Lotion", "Olay Cream","L'Oréal Paris", "Maybelline New York", "MAC Cosmetics", "Sephora KSA", "The Body Shop KSA", "Bath & Body Works KSA", "Victoria's Secret KSA", "Zara KSA", "H&M KSA", "Bershka KSA",  "Pepsi", "Coca-Cola", "7UP", "Mountain Dew", "Fanta", "Sprite", "Mirinda", "Rani", "Barbican","Shaani", "Sun Top", "Sun Cola", "Lemonita", "Vimto", "RC Cola", "Dr Pepper", "Canada Dry","Tropicana Twister", "Aquafina", "Nestlé Pure Life", "Arwa", "Nova", "Berain", "Hana Water","Al Ain Water", "Mai Dubai", "Al Safi Water", "Al Qassim Water", "Al Manhal", "Al Rawabi","Red Bull", "Monster", "Rockstar", "Bison", "Code Red", "XL Energy", "Power Horse", "Tango","Big Cola", "Fayrouz", "Perrier", "San Pellegrino", "La Vie", "Sirma", "Evian", "Volvic"];
+
+    const arabicToEnglishMap = {
+      "بيبسي": "Pepsi",
+      "كوكاكولا": "Coca-Cola",
+      "ماكدونالدز": "McDonald's",
+      "البيك": "Al Baik",
+      "نستله": "Nestlé",
+      "ستاربكس": "Starbucks",
+      "ريد بول": "Red Bull",
+      "مونستر": "Monster",
+      "راني": "Rani",
+      "بركان": "Barbican"
+    };
+
+    const normalizedList = itemList.map(item => item.toLowerCase());
+
+    const searchInput = document.getElementById("searchInput");
+    const suggestionsBox = document.getElementById("suggestions");
+    const resultMessage = document.getElementById("resultMessage");
+
+    searchInput.addEventListener("input", () => {
+      const input = searchInput.value.trim().toLowerCase();
+      suggestionsBox.innerHTML = "";
+
+      if (input.length === 0) return;
+
+      const matches = itemList.filter(item => item.toLowerCase().includes(input));
+      matches.forEach(match => {
+        const div = document.createElement("div");
+        div.textContent = match;
+        div.addEventListener("click", () => {
+          searchInput.value = match;
+          suggestionsBox.innerHTML = "";
+        });
+        suggestionsBox.appendChild(div);
+      });
+    });
+
+    document.getElementById("checkBtn").addEventListener("click", () => {
+      let input = searchInput.value.trim().toLowerCase();
+      if (arabicToEnglishMap[input]) {
+        input = arabicToEnglishMap[input].toLowerCase();
+      }
+
+      if (input === "") {
+        resultMessage.textContent = "يرجى إدخال اسم المنتج أو الشركة.";
+        resultMessage.style.color = "orange";
+        return;
+      }
+
+      if (normalizedList.includes(input)) {
+        resultMessage.textContent = `"${input}" مقاطَع — لا تشتريه ❌`;
+        resultMessage.style.color = "red";
+      } else {
+        resultMessage.textContent = `"${input}" غير مقاطَع — يمكنك شراؤه ✅`;
+        resultMessage.style.color = "green";
+      }
+    });
+  </script>
+
+</body>
+</html>
